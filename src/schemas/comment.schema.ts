@@ -1,22 +1,18 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
 import { Document } from 'mongoose';
 
 export type CommentDocument = Comment & Document;
 
 @Schema()
 export class Comment {
-    @Prop( { required: true, unique: true, type: mongoose.Schema.Types.ObjectId } )
-        _id: mongoose.Schema.Types.ObjectId;
-
     @Prop( { required: true, index: true } )
         author: string;
 
-    @Prop( { required: true, index: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' } )
-        post_id: string;
+    @Prop( { required: true, index: true } )
+        post_id: number;
 
-    @Prop( { sparse: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' } )
-        parent_id: mongoose.Schema.Types.ObjectId | null;
+    @Prop( { sparse: true } )
+        parent_id: number | null;
 
     @Prop( { required: true, minlength: 1 } )
         text: string;
@@ -28,4 +24,4 @@ export class Comment {
         rating: { user: string, is_positive: boolean }[];
 }
 
-export const CatSchema = SchemaFactory.createForClass( Comment );
+export const CommentSchema = SchemaFactory.createForClass( Comment );

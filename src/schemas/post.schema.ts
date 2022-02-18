@@ -1,13 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
 import { Document } from 'mongoose';
 
 export type PostDocument = Post & Document;
 
 @Schema()
 export class Post {
-    @Prop( { required: true, unique: true, type: mongoose.Schema.Types.ObjectId } )
-        _id: mongoose.Schema.Types.ObjectId;
+    @Prop( { required: true, unique: true } )
+        id: number;
 
     @Prop( { required: true, index: true } )
         author: string;
@@ -25,4 +24,4 @@ export class Post {
         rating: { user: string, is_positive: boolean }[];
 }
 
-export const CatSchema = SchemaFactory.createForClass( Post );
+export const PostSchema = SchemaFactory.createForClass( Post );
