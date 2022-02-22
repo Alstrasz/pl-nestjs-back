@@ -7,10 +7,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UsersService {
-    constructor ( @InjectModel( User.name ) private userModel: Model<UserDocument> ) {}
+    constructor ( @InjectModel( User.name ) private user_model: Model<UserDocument> ) {}
 
     async create ( create_user_dto: CreateUserDto ): Promise<User> {
-        const created_user = new this.userModel( {
+        const created_user = new this.user_model( {
             uuid: uuidv4(),
             username: create_user_dto.username,
             password_hash: create_user_dto.password_hash,
@@ -20,6 +20,6 @@ export class UsersService {
     }
 
     async get_user_by_username ( username: string ): Promise<User> {
-        return await this.userModel.findOne( { username: username } );
+        return await this.user_model.findOne( { username: username } );
     }
 }

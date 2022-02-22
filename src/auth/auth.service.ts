@@ -7,12 +7,12 @@ import { AccessTokenDto } from './dto/access_tocken.dto';
 @Injectable()
 export class AuthService {
     constructor (
-        private usersService: UsersService,
-        private jwtService: JwtService,
+        private users_service: UsersService,
+        private jwt_service: JwtService,
     ) {}
 
     async validateUser ( username: string, pass: string ): Promise<User | null> {
-        const user = await this.usersService.get_user_by_username( username );
+        const user = await this.users_service.get_user_by_username( username );
         console.log( user );
         if ( user && user.password_hash === pass ) {
             user.password_hash = undefined;
@@ -24,7 +24,7 @@ export class AuthService {
     async login ( user: User ): Promise<AccessTokenDto> {
         const payload = { username: user.username, sub: user.uuid };
         return {
-            access_token: this.jwtService.sign( payload ),
+            access_token: this.jwt_service.sign( payload ),
         };
     }
 }

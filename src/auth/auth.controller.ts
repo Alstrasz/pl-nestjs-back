@@ -9,9 +9,8 @@ import {
     Body,
     ConflictException,
     InternalServerErrorException,
-    UseInterceptors,
-    ClassSerializerInterceptor,
 } from '@nestjs/common';
+import { c_error_codes, db_error_codes } from 'src/constatns';
 import { UserDto } from 'src/users/dto/user.dto';
 import { UsersService } from 'src/users/users.service';
 import { AuthService } from './auth.service';
@@ -24,31 +23,33 @@ import { LocalAuthGuard } from './local-auth.guard';
 @Controller( 'auth' )
 export class AuthController {
     constructor (
-        private authService: AuthService,
-        private usersService: UsersService,
+        private auth_service: AuthService,
+        private users_service: UsersService,
     ) {}
 
     @UseGuards( LocalAuthGuard )
     @Post( 'login' )
     async login ( @Request() req ): Promise<AccessTokenDto> {
-        const t: any = await this.authService.login( req.user );
-        t.t = '2';
-        return new AccessTokenDto( t );
+        return new AccessTokenDto( await this.auth_service.login( req.user ) );
     }
 
     @UseGuards( JwtAuthGuard )
     @Get( 'profile' )
     async getProfile ( @Request() req ): Promise<UserDto> {
-        return new UserDto( ( await this.usersService.get_user_by_username( req.user?.username ) as any )._doc );
+        return new UserDto( ( await this.users_service.get_user_by_username( req.user?.username ) as any )._doc );
     }
 
     @UsePipes( new ValidationPipe( { whitelist: true } ) )
     @Post( 'register' )
-    async register ( @Body() createUserDto: CreateUserDto ): Promise<AccessTokenDto> {
-        return this.authService.login(
-            await this.usersService.create( createUserDto ).catch( ( err ) => {
-                if ( err.code = 11000 ) {
-                    throw new ConflictException( err );
+    async register ( @Body() create_user_dto: CreateUserDto ): Promise<AccessTokenDto> {
+        return this.auth_service.login(
+            await this.users_service.create( create_user_dto ).catch( ( err ) => {
+                if ( err.code == db_error_codes.collizion ) {
+                    throw new ConflictException( {
+                        fields: err?.keyValue,
+                        description: 'Such unique index already exists',
+                        code: c_error_codes.collizion,
+                    } );
                 }
                 throw new InternalServerErrorException( err );
             } ),
