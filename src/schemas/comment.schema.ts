@@ -20,8 +20,8 @@ export class Comment {
     @Prop( { required: true } )
         date_in_seconds: number;
 
-    @Prop( { required: true, type: [{ user: String, is_positive: Boolean }] } )
-        rating: { user: string, is_positive: boolean }[];
+    @Prop( { required: true, default: 0 } )
+        votes: number;
 }
 
 export const CommentSchema = SchemaFactory.createForClass( Comment );

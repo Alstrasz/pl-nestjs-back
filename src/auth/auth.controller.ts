@@ -36,7 +36,7 @@ export class AuthController {
     @UseGuards( JwtAuthGuard )
     @Get( 'profile' )
     async getProfile ( @Request() req ): Promise<UserDto> {
-        return new UserDto( ( await this.users_service.get_user_by_username( req.user?.username ) as any )._doc );
+        return new UserDto( req.user._doc );
     }
 
     @UsePipes( new ValidationPipe( { whitelist: true } ) )

@@ -1,14 +1,20 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Post, PostDocument } from 'src/schemas/post.schema';
 import { Model } from 'mongoose';
 import { CreatePostDto } from './dto/create_post.dto';
-import { c_error_codes } from 'src/constatns';
+import { counter_name, c_error_codes } from 'src/constatns';
+import { Counter, CounterDocument } from 'src/schemas/counter.schema';
+import mongoose from 'mongoose';
 
 
 @Injectable()
 export class PostsService {
-    constructor ( @InjectModel( Post.name ) private post_model: Model<PostDocument> ) {}
+    constructor (
+        @InjectModel( Post.name ) private post_model: Model<PostDocument>,
+        @InjectModel( Counter.name ) private counter_model: Model<CounterDocument>,
+        @InjectConnection() private connection: mongoose.Connection,
+    ) {}
 
     async create ( create_post_dto: CreatePostDto, author: string ): Promise<Post> {
         if ( author == null || author == undefined || author == '' ) {
@@ -18,15 +24,24 @@ export class PostsService {
                 description: 'Cannot create post without author',
             } );
         }
-        const created_post = new this.post_model( {
-            id: 1,
-            author: author,
-            title: create_post_dto.title,
-            text: create_post_dto.text,
-            date_in_seconds: ( new Date() ).getSeconds(),
-            rating: [],
-        } );
-        return created_post.save();
+        const session = await this.connection.startSession();
+        return await session.withTransaction( async () => {
+            const id = await this.counter_model.updateOne( { name: counter_name.post }, { $inc: { count: 1 } }, { upsert: true } );
+            console.log( id );
+            const created_post = new this.post_model( {
+                id: id.modifiedCount,
+                author: author,
+                title: create_post_dto.title,
+                text: create_post_dto.text,
+                date_in_seconds: ( new Date() ).getSeconds(),
+                rating: [],
+            } );
+            const c = await created_post.save();
+            return c;
+        }, { readConcern: { level: 'local' }, writeConcern: { w: 'majority' } } )
+            .finally( () => {
+                session.endSession();
+            } );
     }
 
     async get_post_by_id ( id: string ): Promise<Post> {

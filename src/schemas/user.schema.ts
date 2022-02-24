@@ -17,8 +17,8 @@ export class User {
     @Prop( { required: true } )
         registration_date_in_seconds: number;
 
-    @Prop( { required: true, type: [{ post_id: Number, is_positive: Boolean }] } )
-        ratings: { post_id: number, is_positive: boolean }[];
+    @Prop( { required: true, default: {}, type: { String: Boolean } } )
+        post_votes: { [post_id: number]: boolean };
 }
 
 export const UserSchema = SchemaFactory.createForClass( User );

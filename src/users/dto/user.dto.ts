@@ -12,6 +12,7 @@ export class UserDto {
 
     @Expose()
         registration_date_in_seconds: number;
+
     @Expose()
         ratings: { post_id: number, is_positive: boolean }[];
 

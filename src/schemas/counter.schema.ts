@@ -9,7 +9,7 @@ export class Counter {
         name: string;
 
     @Prop( { required: true } )
-        author: number;
+        count: number;
 }
 
 export const CounterSchema = SchemaFactory.createForClass( Counter );

@@ -18,7 +18,10 @@ export class PostDto {
         date_in_seconds: number;
 
     @Expose()
-        rating: { user: string, is_positive: boolean }[];
+        votes: number;
+
+    @Expose()
+        user_upvoted?: boolean;
 
     constructor ( partial: Partial<PostDto> ) {
         Object.assign( this, partial );
