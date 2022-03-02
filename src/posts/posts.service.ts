@@ -25,23 +25,23 @@ export class PostsService {
             } );
         }
         const session = await this.connection.startSession();
-        return await session.withTransaction( async () => {
-            const id = await this.counter_model.updateOne( { name: counter_name.post }, { $inc: { count: 1 } }, { upsert: true } );
-            console.log( id );
+        let post;
+        await session.withTransaction( async () => {
+            const id = await this.counter_model.findOneAndUpdate( { name: counter_name.post }, { $inc: { count: 1 } }, { upsert: true } );
             const created_post = new this.post_model( {
-                id: id.modifiedCount,
+                id: id.count,
                 author: author,
                 title: create_post_dto.title,
                 text: create_post_dto.text,
                 date_in_seconds: ( new Date() ).getSeconds(),
                 rating: [],
             } );
-            const c = await created_post.save();
-            return c;
+            post = await created_post.save();
         }, { readConcern: { level: 'local' }, writeConcern: { w: 'majority' } } )
             .finally( () => {
                 session.endSession();
             } );
+        return post;
     }
 
     async get_post_by_id ( id: string ): Promise<Post> {

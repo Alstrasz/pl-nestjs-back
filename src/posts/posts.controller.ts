@@ -14,9 +14,17 @@ export class PostsController {
     @UsePipes( new ValidationPipe( { whitelist: true } ) )
     @Post( 'create' )
     async create ( @Request() req, @Body() create_post_dto: CreatePostDto ): Promise<PostDto> {
-        const t = await this.posts_service.create( create_post_dto, req.user?.username );
-        console.log( t );
-        return new PostDto( t );
+        const post = await this.posts_service.create( create_post_dto, req.user?.username );
+        console.log( post );
+        return new PostDto( {
+            id: post.id,
+            author: post.author,
+            title: post.title,
+            text: post.text,
+            date_in_seconds: post.date_in_seconds,
+            votes: post.votes,
+            user_upvoted: req.user?.[post.id],
+        } ); ;
     }
 
     @UseGuards( JwtAuthLoosyGuard )
@@ -31,6 +39,7 @@ export class PostsController {
             } );
         }
         return new PostDto( {
+            id: post.id,
             author: post.author,
             title: post.title,
             text: post.text,
