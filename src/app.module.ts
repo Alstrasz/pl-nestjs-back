@@ -10,7 +10,7 @@ import { PostsModule } from './posts/posts.module';
     imports: [
         AuthModule,
         UsersModule,
-        MongooseModule.forRoot( 'mongodb://localhost:8087' ),
+        MongooseModule.forRoot( 'mongodb://localhost:8087?replicaSet=rs' ),
         PostsModule,
     ],
     controllers: [AppController],
