@@ -1,4 +1,5 @@
 import { Exclude, Expose } from 'class-transformer';
+import { ROLE } from 'src/auth/enums/role.enum';
 
 @Exclude()
 export class UserDto {
@@ -14,7 +15,10 @@ export class UserDto {
         registration_date_in_seconds: number;
 
     @Expose()
-        ratings: { post_id: number, is_positive: boolean }[];
+        post_votes: Map<string, boolean>;
+
+    @Expose()
+        roles: ROLE[];
 
     constructor ( partial: Partial<UserDto> ) {
         Object.assign( this, partial );

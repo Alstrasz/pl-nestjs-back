@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Post, PostDocument } from 'src/schemas/post.schema';
 import { Model } from 'mongoose';
@@ -89,6 +89,13 @@ export class PostsService {
                 }
             }
             post = await this.post_model.findOneAndUpdate( { id: post_id }, { $inc: { votes: delta } }, { returnOriginal: false, session } );
+            if ( post == null ) {
+                throw new NotFoundException( {
+                    fields: { id: post_id },
+                    description: 'No post with such index found',
+                    code: c_error_codes.not_found,
+                } );
+            }
         }, { readConcern: { level: 'local' }, writeConcern: { w: 'majority' } } )
             .finally( () => {
                 session.endSession();

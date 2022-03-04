@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { ROLE } from 'src/auth/enums/role.enum';
 
 export type UserDocument = User & Document;
 
@@ -19,6 +20,9 @@ export class User {
 
     @Prop( { required: true, default: {}, type: Map, of: Boolean } )
         post_votes: Map<string, boolean>;
+
+    @Prop( { required: true, default: [ROLE.USER], type: [String] } )
+        roles: ROLE[];
 }
 
 export const UserSchema = SchemaFactory.createForClass( User );

@@ -16,8 +16,11 @@ import { UsersService } from 'src/users/users.service';
 import { AuthService } from './auth.service';
 import { AccessTokenDto } from './dto/access_tocken.dto';
 import { CreateUserDto } from './dto/create_user.dto';
+import { ROLE } from './enums/role.enum';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
+import { Roles } from './roles.decorator';
+import { RolesGuard } from './roles.guard';
 
 
 @Controller( 'auth' )
@@ -33,7 +36,9 @@ export class AuthController {
         return new AccessTokenDto( await this.auth_service.login( req.user ) );
     }
 
+    @UseGuards( RolesGuard )
     @UseGuards( JwtAuthGuard )
+    @Roles( ROLE.USER )
     @Get( 'profile' )
     async getProfile ( @Request() req ): Promise<UserDto> {
         return new UserDto( req.user );
