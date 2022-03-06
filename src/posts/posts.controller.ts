@@ -31,7 +31,6 @@ export class PostsController {
     @UsePipes( new ValidationPipe( { whitelist: true } ) )
     @Post( ':id/vote' )
     async vote ( @Request() req, @Body() vote_post_dto: VotePostDto, @Param( 'id', ParseIntPipe ) id: number ): Promise<void> {
-        console.log( 'VOTE', vote_post_dto );
         await this.posts_service.set_vote_by_id( id, req.user.username, vote_post_dto.vote );
     }
 
@@ -46,8 +45,6 @@ export class PostsController {
                 code: c_error_codes.not_found,
             } );
         }
-        console.log( JSON.stringify( req.user, null, 2 ) );
-        console.log( req.user.post_votes, req.user.post_votes.get( `1` ) );
         return new PostDto( {
             id: post.id,
             author: post.author,

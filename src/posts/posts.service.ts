@@ -50,6 +50,22 @@ export class PostsService {
         return await this.post_model.findOne( { id: id } );
     }
 
+    async pseudo_delete_post_by_id ( id: number, by: string, reason: string ) {
+        const post = await this.post_model.findOneAndUpdate(
+            { id: id }, { $set:
+                { title: 'DELETED', text: `Deleted by @${by} at ${( new Date() ).toDateString()} due to:\n${reason}` } },
+            { returnOriginal: true },
+        );
+        if ( post == null ) {
+            throw new NotFoundException( {
+                fields: { id: id },
+                description: 'No post with such index found',
+                code: c_error_codes.not_found,
+            } );
+        };
+        return this.get_post_by_id( id );
+    }
+
     async set_vote_by_id ( post_id: number, username: string, new_vote: boolean | undefined ) {
         if ( username == undefined ) {
             throw new UnauthorizedException( {

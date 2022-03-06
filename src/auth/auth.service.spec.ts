@@ -1,18 +1,19 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { describe_with_db, TestContext } from 'src/abstract_spec';
+import { AuthModule } from './auth.module';
 import { AuthService } from './auth.service';
 
-describe( 'AuthService', () => {
-    let service: AuthService;
 
-    beforeEach( async () => {
-        const module: TestingModule = await Test.createTestingModule( {
-            providers: [AuthService],
-        } ).compile();
+let auth_service: AuthService;
 
-        service = module.get<AuthService>( AuthService );
-    } );
-
-    it( 'should be defined', () => {
-        expect( service ).toBeDefined();
-    } );
-} );
+describe_with_db(
+    'AuthService',
+    [AuthModule],
+    ( context: TestContext ) => {
+        auth_service = context.module.get<AuthService>( AuthService );
+    },
+    () => {
+        it( 'should be defined', () => {
+            expect( auth_service ).toBeDefined();
+        } );
+    },
+);

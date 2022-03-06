@@ -47,7 +47,6 @@ export class UsersService {
                 doc.post_votes[post_id] = new_vote;
                 ( ( doc.post_votes as unknown ) as Doc<any, any, any> ).set( `${post_id}`, new_vote, { session } );
                 // ( doc.post_votes as any )?.set( '' + post_id, new_vote );
-                console.log( post_id, new_vote, doc );
                 await doc.save( { session } );
                 return ret;
             } );
