@@ -14,13 +14,13 @@ export class UsersService {
             uuid: uuidv4(),
             username: create_user_dto.username,
             password_hash: create_user_dto.password_hash,
-            registration_date_in_seconds: ( new Date() ).getSeconds(),
+            registration_date_in_seconds: ( new Date() ).getTime(),
         } );
         return created_user.save();
     }
 
     async get_user_by_username ( username: string ): Promise<User> {
-        return ( await this.user_model.findOne( { username: username } ) as any )._doc;
+        return ( await this.user_model.findOne( { username: username } ) as any )?._doc || null;
     }
 
 

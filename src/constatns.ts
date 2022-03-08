@@ -9,6 +9,7 @@ export const db_error_codes = {
 export const c_error_codes = {
     collizion: 1,
     field_is_null: 2,
+    bad_query: 3,
     not_found: 4,
 };
 

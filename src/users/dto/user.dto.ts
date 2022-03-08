@@ -14,8 +14,7 @@ export class UserDto {
     @Expose()
         registration_date_in_seconds: number;
 
-    @Expose()
-        post_votes: Map<string, boolean>;
+    post_votes: Map<string, boolean>;
 
     @Expose()
         roles: ROLE[];

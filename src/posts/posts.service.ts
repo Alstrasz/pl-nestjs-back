@@ -18,7 +18,7 @@ export class PostsService {
         @InjectConnection() private connection: mongoose.Connection,
     ) {}
 
-    async create ( create_post_dto: CreatePostDto, author: string ): Promise<Post> {
+    async create ( create_post_dto: CreatePostDto, author: string ): Promise<PostDocument> {
         if ( author == null || author == undefined || author == '' ) {
             throw new UnauthorizedException( {
                 code: c_error_codes.field_is_null,
@@ -35,7 +35,7 @@ export class PostsService {
                 author: author,
                 title: create_post_dto.title,
                 text: create_post_dto.text,
-                date_in_seconds: ( new Date() ).getSeconds(),
+                date_in_seconds: ( new Date() ).getTime(),
                 rating: [],
             } );
             post = await created_post.save( { session } );
@@ -46,8 +46,8 @@ export class PostsService {
         return post;
     }
 
-    async get_post_by_id ( id: number ): Promise<Post> {
-        return await this.post_model.findOne( { id: id } );
+    async get_post_by_id ( id: number ): Promise<PostDocument> {
+        return ( await this.post_model.findOne( { id: id } ) as any )?._doc || null;
     }
 
     async pseudo_delete_post_by_id ( id: number, by: string, reason: string ) {
@@ -64,6 +64,27 @@ export class PostsService {
             } );
         };
         return this.get_post_by_id( id );
+    }
+
+    async get_post_by_author ( author: string ): Promise<Array<PostDocument>> {
+        const ret = [];
+        ( await this.post_model.find( { author: author } ) ).forEach( ( elem ) => {
+            ret.push( ( elem as any )._doc );
+        } );
+        return ret;
+    }
+
+    async get_posts_earlier_then ( amount: number, date_in_seconds?: number ): Promise<Array<PostDocument>> {
+        const ret = [];
+        ( await this.post_model.find( date_in_seconds ? {
+            date_in_seconds: { $lt: date_in_seconds },
+        } : {} )
+            .sort( { date_in_seconds: 1 } )
+            .limit( amount )
+        ).forEach( ( elem ) => {
+            ret.push( ( elem as any )._doc );
+        } );
+        return ret;
     }
 
     async set_vote_by_id ( post_id: number, username: string, new_vote: boolean | undefined ) {

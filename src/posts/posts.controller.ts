@@ -1,7 +1,8 @@
-import { Body, Controller, Post, UsePipes, ValidationPipe, Request, Param, Get, UseGuards, NotFoundException, ParseIntPipe } from '@nestjs/common';
+import { Body, Controller, Post, UsePipes, ValidationPipe, Request, Param, Get, UseGuards, NotFoundException, ParseIntPipe, Query, BadRequestException } from '@nestjs/common';
 import { JwtAuthLoosyGuard } from 'src/auth/jwt-auth-loosy.guard';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { c_error_codes } from 'src/constatns';
+import { PostDocument } from 'src/schemas/post.schema';
 import { CreatePostDto } from './dto/create_post.dto';
 import { PostDto } from './dto/post.dto';
 import { VotePostDto } from './dto/vote_post.dto';
@@ -23,8 +24,8 @@ export class PostsController {
             text: post.text,
             date_in_seconds: post.date_in_seconds,
             votes: post.votes,
-            user_upvoted: req.user?.[post.id],
-        } ); ;
+            user_upvoted: req.user?.post_votes.get( `${post.id}` ),
+        } );
     }
 
     @UseGuards( JwtAuthGuard )
@@ -35,10 +36,50 @@ export class PostsController {
     }
 
     @UseGuards( JwtAuthLoosyGuard )
+    @Get( 'all' )
+    async all_by_author ( @Request() req, @Query( 'author' ) author: string, @Query( 'date' ) date: string ): Promise<{ posts: Array<PostDto> }> {
+        let query: Array<PostDocument>;
+        if ( !author && !date ) {
+            query = await this.posts_service.get_posts_earlier_then( 100 );
+        } else if ( author && date ) {
+            throw new BadRequestException( {
+                description: 'author and date at the same time not supported yet',
+                code: c_error_codes.bad_query,
+            } );
+        } else if ( author ) {
+            query = await this.posts_service.get_post_by_author( author );
+        } else if ( date ) {
+            if ( ! /^\d+$/.test( date ) ) {
+                throw new NotFoundException( {
+                    fields: { date: date },
+                    description: 'Only positive integers are allowed',
+                    code: c_error_codes.not_found,
+                } );
+            }
+            query = await this.posts_service.get_posts_earlier_then( 100, parseInt( date ) );
+        }
+
+
+        const ret = [];
+        query.forEach( ( post ) => {
+            ret.push( new PostDto( {
+                id: post.id,
+                author: post.author,
+                title: post.title,
+                text: post.text,
+                date_in_seconds: post.date_in_seconds,
+                votes: post.votes,
+                user_upvoted: req.user?.post_votes.get( `${post.id}` ),
+            } ) );
+        } );
+        return { posts: ret };
+    }
+
+    @UseGuards( JwtAuthLoosyGuard )
     @Get( ':id' )
     async get_by_id ( @Param( 'id', ParseIntPipe ) id: number, @Request() req ): Promise<PostDto> {
         const post = await this.posts_service.get_post_by_id( id );
-        if ( post == null ) {
+        if ( !post ) {
             throw new NotFoundException( {
                 fields: { id: id },
                 description: 'No post with such index found',
@@ -52,7 +93,7 @@ export class PostsController {
             text: post.text,
             date_in_seconds: post.date_in_seconds,
             votes: post.votes,
-            user_upvoted: req.user.post_votes.get( `${post.id}` ),
+            user_upvoted: req.user?.post_votes.get( `${post.id}` ),
         } );
     }
 }

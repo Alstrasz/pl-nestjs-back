@@ -8,6 +8,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { UsersModule } from 'src/users/users.module';
 import { describe_with_db, TestContext } from 'src/abstract_spec';
 import { PostsService } from './posts.service';
+import { sleep } from 'src/helpers';
 
 let controller: PostsController;
 let auth: AuthService;
@@ -74,12 +75,17 @@ describe_with_db(
                 } )
                 .expect( 201 );
 
-            const post = await posts_service.get_post_by_id( 1 );
-            expect( post.id ).toEqual( 1 );
-            expect( post.title ).toEqual( 't1' );
-            expect( post.text ).toEqual( 'txt1' );
-            expect( post.author ).toEqual( 'u1' );
-            expect( post.votes ).toEqual( 0 );
+            await request( app.getHttpServer() )
+                .get( '/posts/1' )
+                .set( 'Accept', 'application/json' )
+                .expect( 200 )
+                .expect( ( res: request.Response ) => {
+                    expect( res.body.id ).toEqual( 1 );
+                    expect( res.body.title ).toEqual( 't1' );
+                    expect( res.body.text ).toEqual( 'txt1' );
+                    expect( res.body.author ).toEqual( 'u1' );
+                    expect( res.body.votes ).toEqual( 0 );
+                } );
         } );
 
         it( 'should set proper id for posts', async () => {
@@ -154,5 +160,68 @@ describe_with_db(
             expect( post.text ).toEqual( 'txt1' );
             expect( post.author ).toEqual( 'u1' );
             expect( post.votes ).toEqual( -1 );
+        } );
+
+        it( 'should get by author properly', async () => {
+            const token1 = await auth.register( {
+                username: 'u1',
+                password_hash: 'p1',
+            } );
+
+            await posts_service.create( {
+                title: 't1',
+                text: 'txt1',
+            }, 'u1' );
+
+            await posts_service.create( {
+                title: 't2',
+                text: 'txt2',
+            }, 'u1' );
+
+            await request( app.getHttpServer() )
+                .get( '/posts/all?author=u1' )
+                .set( 'Authorization', `Bearer ${token1.access_token}` )
+                .expect( 200 )
+                .expect( ( res: request.Response ) => {
+                    expect( res.body.posts.length ).toEqual( 2 );
+                } );
+        } );
+
+        it( 'should get by date properly', async () => {
+            const token1 = await auth.register( {
+                username: 'u1',
+                password_hash: 'p1',
+            } );
+
+            await posts_service.create( {
+                title: 't1',
+                text: 'txt1',
+            }, 'u1' );
+
+            sleep( 2000 );
+
+            await posts_service.create( {
+                title: 't2',
+                text: 'txt2',
+            }, 'u1' );
+
+            let date: number;
+
+            await request( app.getHttpServer() )
+                .get( '/posts/all' )
+                .set( 'Authorization', `Bearer ${token1.access_token}` )
+                .expect( 200 )
+                .expect( ( res: request.Response ) => {
+                    expect( res.body.posts.length ).toEqual( 2 );
+                    date = res.body.posts[1].date_in_seconds;
+                } );
+
+            await request( app.getHttpServer() )
+                .get( `/posts/all?date=${date}` )
+                .set( 'Authorization', `Bearer ${token1.access_token}` )
+                .expect( 200 )
+                .expect( ( res: request.Response ) => {
+                    expect( res.body.posts.length ).toEqual( 1 );
+                } );
         } );
     } );
