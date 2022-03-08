@@ -27,8 +27,7 @@ export function describe_with_db ( name: string, imports: Array<any>, extra_befo
 
 
             app = module.createNestApplication();
-            apply_middleware( app );
-            app.listen( 0 );
+            await app.init();
             connection = module.get( getConnectionToken() );
             // eslint-disable-next-line guard-for-in
             for ( const prop in connection.collections ) {
@@ -42,6 +41,10 @@ export function describe_with_db ( name: string, imports: Array<any>, extra_befo
             for ( const prop in connection.collections ) {
                 await connection.collections[prop].deleteMany( {} );
             }
+        } );
+
+        afterAll( async () => {
+            app.close();
         } );
 
         it( 'app shoukd be defined', () => {
