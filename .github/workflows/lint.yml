@@ -1,0 +1,23 @@
+on: push
+name: Linter
+jobs:
+  test:
+    name: lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - uses: actions/checkout@master
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: npm install
+        run: npm install
+        env:
+          CI: true
+      - name: npm lint
+        run: npm run lint
+        env:
+          CI: true
