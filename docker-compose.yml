@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+    mongodb:
+        image: mongo:4.2
+        container_name: mongodb
+        hostname: mongodb
+        volumes:
+            - /var/data/pl-nestjs-back/mongod:/data/db/
+        ports:
+            - "8087:27017"
+        healthcheck:
+            test: test $$(echo "rs.initiate().ok || rs.status().ok" | mongo --quiet) -eq 1
+            interval: 10s
+            start_period: 30s
+        command: [ "--replSet", "rs", "--bind_ip_all"]
+        restart: on-failure
+
+    pl-nestjs-back:
+        image: node:16
+        container_name: pl-nestjs-back
+        restart: on-failure
+        environment:
+          - PORT=8080
+          - HOST=0.0.0.0
+          - MONGO_URI=mongodb://mongodb:27017/?replicaSet=rs
+        ports:
+          - 8080:8080
+        volumes:
+          - .:/app
+        depends_on:
+          - mongodb
+        command: bash -c "npm install --prefix=/app && npm start --prefix=/app"

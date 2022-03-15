@@ -6,4 +6,4 @@
 
 <p>This apllication allowes users to create text posts and rate them</p>
 
-// TEMP to run db: run-rs --mongod --dbpath ./ --portStart 8087 // 
+<p>Can be launched by docker-compose up or by hosting mongodb replica set ( for example, run-rs --mongod --dbpath ./ --portStart 8087 ) and executing npm start</p>

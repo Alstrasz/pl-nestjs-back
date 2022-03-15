@@ -28,6 +28,8 @@ async function bootstrap () {
     const app = await NestFactory.create( AppModule );
     apply_middleware( app );
     setup_swagger( app );
-    await app.listen( 8080 );
+    await app.listen( process.env.PORT || 8080, process.env.HOST || '127.0.0.1', () => {
+        console.log( 'APP tarting at ', process.env.PORT || 8080, process.env.HOST || '127.0.0.1' );
+    } );
 }
 bootstrap();
