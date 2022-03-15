@@ -1,15 +1,16 @@
 import {
     Controller,
-    Request,
     Post,
     UseGuards,
     Get,
     UsePipes,
     ValidationPipe,
     Body,
+    Req,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserDto } from 'src/users/dto/user.dto';
+import { RequestWithUser } from 'src/users/interfaces/request_with_user.interface';
 import { UsersService } from 'src/users/users.service';
 import { AuthService } from './auth.service';
 import { AccessTokenDto } from './dto/access_tocken.dto';
@@ -31,7 +32,8 @@ export class AuthController {
     @ApiOperation( { summary: 'Issues JWT token for existing user' } )
     @UseGuards( LocalAuthGuard )
     @Post( 'login' )
-    async login ( @Request() req, @Body() _create_user_dto: CreateUserDto ): Promise<AccessTokenDto> {
+    async login ( @Req() req: RequestWithUser, @Body() _create_user_dto: CreateUserDto ): Promise<AccessTokenDto> {
+        console.log( req.user );
         return new AccessTokenDto( await this.auth_service.login( req.user ) );
     }
 
@@ -41,7 +43,7 @@ export class AuthController {
     @Roles( ROLE.USER )
     @ApiBearerAuth( )
     @Get( 'profile' )
-    async getProfile ( @Request() req ): Promise<UserDto> {
+    async get_profile ( @Req() req: RequestWithUser ): Promise<UserDto> {
         return new UserDto( req.user );
     }
 

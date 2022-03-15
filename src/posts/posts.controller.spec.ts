@@ -127,12 +127,30 @@ describe_with_db(
                 } )
                 .expect( 201 );
 
-            const post = await posts_service.get_post_by_id( 1 );
-            expect( post.id ).toEqual( 1 );
-            expect( post.title ).toEqual( 't1' );
-            expect( post.text ).toEqual( 'txt1' );
-            expect( post.author ).toEqual( 'u1' );
+            let post = await posts_service.get_post_by_id( 1 );
             expect( post.votes ).toEqual( 1 );
+
+            await request( app.getHttpServer() )
+                .post( '/posts/1/vote' )
+                .set( 'Authorization', `Bearer ${token1.access_token}` )
+                .send( {
+                    vote: false,
+                } )
+                .expect( 201 );
+
+            post = await posts_service.get_post_by_id( 1 );
+            expect( post.votes ).toEqual( -1 );
+
+            await request( app.getHttpServer() )
+                .post( '/posts/1/vote' )
+                .set( 'Authorization', `Bearer ${token1.access_token}` )
+                .send( {
+                    vote: undefined,
+                } )
+                .expect( 201 );
+
+            post = await posts_service.get_post_by_id( 1 );
+            expect( post.votes ).toEqual( 0 );
         } );
 
         it( 'should downvote properly', async () => {
@@ -154,12 +172,30 @@ describe_with_db(
                 } )
                 .expect( 201 );
 
-            const post = await posts_service.get_post_by_id( 1 );
-            expect( post.id ).toEqual( 1 );
-            expect( post.title ).toEqual( 't1' );
-            expect( post.text ).toEqual( 'txt1' );
-            expect( post.author ).toEqual( 'u1' );
+            let post = await posts_service.get_post_by_id( 1 );
             expect( post.votes ).toEqual( -1 );
+
+            await request( app.getHttpServer() )
+                .post( '/posts/1/vote' )
+                .set( 'Authorization', `Bearer ${token1.access_token}` )
+                .send( {
+                    vote: true,
+                } )
+                .expect( 201 );
+
+            post = await posts_service.get_post_by_id( 1 );
+            expect( post.votes ).toEqual( 1 );
+
+            await request( app.getHttpServer() )
+                .post( '/posts/1/vote' )
+                .set( 'Authorization', `Bearer ${token1.access_token}` )
+                .send( {
+                    vote: undefined,
+                } )
+                .expect( 201 );
+
+            post = await posts_service.get_post_by_id( 1 );
+            expect( post.votes ).toEqual( 0 );
         } );
 
         it( 'should get by author properly', async () => {

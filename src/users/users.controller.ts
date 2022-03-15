@@ -11,7 +11,7 @@ export class UsersController {
     @Get( ':username' )
     @ApiOperation( { summary: 'Get user data by username' } )
     @ApiBearerAuth( )
-    async getProfile ( @Param( 'username' ) username: string ): Promise<UserDto> {
+    async get_user ( @Param( 'username' ) username: string ): Promise<UserDto> {
         const user = await this.users_service.get_user_by_username( username );
         if ( user == null ) {
             throw new NotFoundException( {
