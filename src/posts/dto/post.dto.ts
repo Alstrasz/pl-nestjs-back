@@ -1,27 +1,20 @@
-import { Exclude, Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
 
-@Exclude()
+@Expose()
 export class PostDto {
-    @Expose()
-        id: number;
+    id: number;
 
-    @Expose()
-        author: string;
+    author: string;
 
-    @Expose()
-        title: string;
+    title: string;
 
-    @Expose()
-        text: string;
+    text: string;
 
-    @Expose()
-        date_in_seconds: number;
+    date_in_seconds: number;
 
-    @Expose()
-        votes: number;
+    votes: number;
 
-    @Expose()
-        user_upvoted?: boolean;
+    user_upvoted?: boolean;
 
     constructor ( partial: Partial<PostDto> ) {
         Object.assign( this, partial );

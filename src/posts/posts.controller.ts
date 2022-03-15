@@ -1,4 +1,5 @@
 import { Body, Controller, Post, UsePipes, ValidationPipe, Request, Param, Get, UseGuards, NotFoundException, ParseIntPipe, Query, BadRequestException } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { JwtAuthLoosyGuard } from 'src/auth/jwt-auth-loosy.guard';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { c_error_codes } from 'src/constatns';
@@ -14,6 +15,8 @@ export class PostsController {
 
     @UseGuards( JwtAuthGuard )
     @UsePipes( new ValidationPipe( { whitelist: true } ) )
+    @ApiBearerAuth( )
+    @ApiOperation( { summary: 'Creates new post and id for it' } )
     @Post( 'create' )
     async create ( @Request() req, @Body() create_post_dto: CreatePostDto ): Promise<PostDto> {
         const post = await this.posts_service.create( create_post_dto, req.user?.username );
@@ -30,14 +33,18 @@ export class PostsController {
 
     @UseGuards( JwtAuthGuard )
     @UsePipes( new ValidationPipe( { whitelist: true } ) )
+    @ApiBearerAuth( )
+    @ApiOperation( { summary: 'Modifies user\' reaction for post. ture for upvote, false for downvote, undefined for not voted' } )
     @Post( ':id/vote' )
     async vote ( @Request() req, @Body() vote_post_dto: VotePostDto, @Param( 'id', ParseIntPipe ) id: number ): Promise<void> {
         await this.posts_service.set_vote_by_id( id, req.user.username, vote_post_dto.vote );
     }
 
     @UseGuards( JwtAuthLoosyGuard )
+    @ApiBearerAuth( )
+    @ApiOperation( { summary: 'Get all post by query. Either all post earlier then date or all posts by author' } )
     @Get( 'all' )
-    async all_by_author ( @Request() req, @Query( 'author' ) author: string, @Query( 'date' ) date: string ): Promise<{ posts: Array<PostDto> }> {
+    async all_by_author ( @Request() req, @Query( 'author' ) author?: string, @Query( 'date' ) date?: string ): Promise<{ posts: Array<PostDto> }> {
         let query: Array<PostDocument>;
         if ( !author && !date ) {
             query = await this.posts_service.get_posts_earlier_then( 100 );
@@ -76,6 +83,8 @@ export class PostsController {
     }
 
     @UseGuards( JwtAuthLoosyGuard )
+    @ApiOperation( { summary: 'Get post by id' } )
+    @ApiBearerAuth( )
     @Get( ':id' )
     async get_by_id ( @Param( 'id', ParseIntPipe ) id: number, @Request() req ): Promise<PostDto> {
         const post = await this.posts_service.get_post_by_id( id );

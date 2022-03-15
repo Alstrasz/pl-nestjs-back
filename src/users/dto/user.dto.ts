@@ -1,22 +1,19 @@
-import { Exclude, Expose } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 import { ROLE } from 'src/auth/enums/role.enum';
 
-@Exclude()
+@Expose()
 export class UserDto {
-    @Expose()
+    @ApiProperty()
         uuid: string;
 
-    @Expose()
+    @ApiProperty()
         username: string;
 
-    password_hash: string;
-
-    @Expose()
+    @ApiProperty()
         registration_date_in_seconds: number;
 
-    post_votes: Map<string, boolean>;
-
-    @Expose()
+    @ApiProperty()
         roles: ROLE[];
 
     constructor ( partial: Partial<UserDto> ) {

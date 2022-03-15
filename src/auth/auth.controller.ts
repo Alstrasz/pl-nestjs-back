@@ -8,6 +8,7 @@ import {
     ValidationPipe,
     Body,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserDto } from 'src/users/dto/user.dto';
 import { UsersService } from 'src/users/users.service';
 import { AuthService } from './auth.service';
@@ -19,7 +20,7 @@ import { LocalAuthGuard } from './local-auth.guard';
 import { Roles } from './roles.decorator';
 import { RolesGuard } from './roles.guard';
 
-
+@ApiTags( 'Auth' )
 @Controller( 'auth' )
 export class AuthController {
     constructor (
@@ -27,20 +28,24 @@ export class AuthController {
         private users_service: UsersService,
     ) {}
 
+    @ApiOperation( { summary: 'Issues JWT token for existing user' } )
     @UseGuards( LocalAuthGuard )
     @Post( 'login' )
-    async login ( @Request() req ): Promise<AccessTokenDto> {
+    async login ( @Request() req, @Body() _create_user_dto: CreateUserDto ): Promise<AccessTokenDto> {
         return new AccessTokenDto( await this.auth_service.login( req.user ) );
     }
 
+    @ApiOperation( { summary: 'Returns user dto. (Currently used to check JWT and roles)' } )
     @UseGuards( RolesGuard )
     @UseGuards( JwtAuthGuard )
     @Roles( ROLE.USER )
+    @ApiBearerAuth( )
     @Get( 'profile' )
     async getProfile ( @Request() req ): Promise<UserDto> {
         return new UserDto( req.user );
     }
 
+    @ApiOperation( { summary: 'Creates user and issues JWT token' } )
     @UsePipes( new ValidationPipe( { whitelist: true } ) )
     @Post( 'register' )
     async register ( @Body() create_user_dto: CreateUserDto ): Promise<AccessTokenDto> {
