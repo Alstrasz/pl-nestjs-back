@@ -50,6 +50,9 @@ export class PostsService {
         return ( await this.post_model.findOne( { id: id } ) as any )?._doc || null;
     }
 
+    /*
+    DEPRICATED. NO CENSURE. Altho, may be returned later
+
     async pseudo_delete_post_by_id ( id: number, by: string, reason: string ) {
         const post = await this.post_model.findOneAndUpdate(
             { id: id }, { $set:
@@ -65,6 +68,7 @@ export class PostsService {
         };
         return this.get_post_by_id( id );
     }
+    */
 
     async get_post_by_author ( author: string ): Promise<Array<PostDocument>> {
         const ret = [];

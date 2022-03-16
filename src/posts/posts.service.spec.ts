@@ -7,7 +7,7 @@ let posts_service: PostsService;
 describe_with_db(
     'PostsService',
     [PostsModule],
-    ( context: TestContext ) => {
+    async ( context: TestContext ) => {
         posts_service = context.module.get<PostsService>( PostsService );
     },
     () => {

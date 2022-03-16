@@ -16,3 +16,5 @@ export const c_error_codes = {
 export const counter_name = {
     post: 'Post',
 };
+
+export const admin_username = 'admin';

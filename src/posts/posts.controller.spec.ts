@@ -18,7 +18,7 @@ let app: INestApplication;
 describe_with_db(
     'PostsController',
     [PostsModule, AuthModule, UsersModule],
-    ( context: TestContext ) => {
+    async ( context: TestContext ) => {
         auth = context.module.get<AuthService>( AuthService );
         controller = context.module.get<PostsController>( PostsController );
         posts_service = context.module.get<PostsService>( PostsService );

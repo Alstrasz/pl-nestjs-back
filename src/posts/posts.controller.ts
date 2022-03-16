@@ -1,5 +1,5 @@
 import { Body, Controller, Post, UsePipes, ValidationPipe, Req, Param, Get, UseGuards, NotFoundException, ParseIntPipe, Query, BadRequestException } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthLoosyGuard } from 'src/auth/jwt-auth-loosy.guard';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { c_error_codes } from 'src/constatns';
@@ -10,6 +10,7 @@ import { PostDto } from './dto/post.dto';
 import { VotePostDto } from './dto/vote_post.dto';
 import { PostsService } from './posts.service';
 
+@ApiTags( 'Posts' )
 @Controller( 'posts' )
 export class PostsController {
     constructor ( private posts_service: PostsService ) {}

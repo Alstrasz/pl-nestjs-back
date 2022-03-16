@@ -33,7 +33,6 @@ export class AuthController {
     @UseGuards( LocalAuthGuard )
     @Post( 'login' )
     async login ( @Req() req: RequestWithUser, @Body() _create_user_dto: CreateUserDto ): Promise<AccessTokenDto> {
-        console.log( req.user );
         return new AccessTokenDto( await this.auth_service.login( req.user ) );
     }
 

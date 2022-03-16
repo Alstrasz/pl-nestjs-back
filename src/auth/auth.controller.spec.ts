@@ -14,7 +14,7 @@ let app: INestApplication;
 describe_with_db(
     'AuthController',
     [AuthModule, UsersModule],
-    ( context: TestContext ) => {
+    async ( context: TestContext ) => {
         app = context.app;
         auth_controller = context.module.get<AuthController>( AuthController );
         auth_service = context.module.get<AuthService>( AuthService );

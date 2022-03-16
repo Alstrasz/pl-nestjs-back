@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.7"
 services:
     mongodb:
         image: mongo:4.2
@@ -23,6 +23,7 @@ services:
           - PORT=8080
           - HOST=0.0.0.0
           - MONGO_URI=mongodb://mongodb:27017/?replicaSet=rs
+          - ADMIN_PASSWORD=admin
         ports:
           - 8080:8080
         volumes:

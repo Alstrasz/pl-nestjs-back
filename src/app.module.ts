@@ -14,8 +14,8 @@ import { LoggerMiddleware } from './logger.middleware';
         UsersModule,
         MongooseModule.forRootAsync( {
             imports: [ConfigModule],
-            useFactory: async ( ) => ( {
-                uri: process.env.MONGO_URI || 'mongodb://127.0.0.1:8087?replicaSet=rs',
+            useFactory: async ( config_service: ConfigService ) => ( {
+                uri: config_service.get( 'MONGO_URI' ) || 'mongodb://127.0.0.1:8087?replicaSet=rs',
             } ),
             inject: [ConfigService],
         } ),

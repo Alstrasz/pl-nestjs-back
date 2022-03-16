@@ -1,20 +1,35 @@
-import { Expose } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+import { Exclude, Expose } from 'class-transformer';
 
-@Expose()
+@Exclude()
 export class PostDto {
-    id: number;
+    @Expose()
+    @ApiProperty()
+        id: number;
 
-    author: string;
+    @Expose()
+    @ApiProperty()
+        author: string;
 
-    title: string;
+    @Expose()
+    @ApiProperty()
+        title: string;
 
-    text: string;
+    @Expose()
+    @ApiProperty()
+        text: string;
 
-    date_in_seconds: number;
+    @Expose()
+    @ApiProperty()
+        date_in_seconds: number;
 
-    votes: number;
+    @Expose()
+    @ApiProperty()
+        votes: number;
 
-    user_upvoted?: boolean;
+    @Expose()
+    @ApiProperty()
+        user_upvoted?: boolean;
 
     constructor ( partial: Partial<PostDto> ) {
         Object.assign( this, partial );

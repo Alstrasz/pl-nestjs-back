@@ -10,13 +10,13 @@ export interface TestContext {
     app: INestApplication
 }
 
-export function describe_with_db ( name: string, imports: Array<any>, extra_before_all: ( context: TestContext ) => void, cases: () => void ) {
+export function describe_with_db ( name: string, imports: Array<any>, extra_before_all: ( context: TestContext ) => Promise<void>, cases: () => void ) {
     describe( name, () => {
         let app: INestApplication;
         let connection: mongoose.Connection;
         let module: TestingModule;
 
-        beforeAll( async () => {
+        beforeEach( async () => {
             const new_imports = [MongooseModule.forRoot( `mongodb://localhost:8088/${name}?replicaSet=rs` )];
             for ( const imp of imports ) {
                 new_imports.push( imp );
@@ -33,7 +33,7 @@ export function describe_with_db ( name: string, imports: Array<any>, extra_befo
             for ( const prop in connection.collections ) {
                 connection.collections[prop].deleteMany( {} );
             }
-            extra_before_all( { module, app } );
+            await extra_before_all( { module, app } );
         } );
 
         afterEach( async () => {
@@ -41,10 +41,7 @@ export function describe_with_db ( name: string, imports: Array<any>, extra_befo
             for ( const prop in connection.collections ) {
                 await connection.collections[prop].deleteMany( {} );
             }
-        } );
-
-        afterAll( async () => {
-            app.close();
+            await app.close();
         } );
 
         it( 'app shoukd be defined', () => {

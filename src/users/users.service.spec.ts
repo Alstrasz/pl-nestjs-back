@@ -8,7 +8,7 @@ let auth_service: UsersService;
 describe_with_db(
     'UsersService',
     [UsersModule],
-    ( context: TestContext ) => {
+    async ( context: TestContext ) => {
         auth_service = context.module.get<UsersService>( UsersService );
     },
     () => {
